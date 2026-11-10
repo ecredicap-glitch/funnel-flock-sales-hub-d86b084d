@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794345329948,
+      "tag": "0000_workspaces_members_profiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794345473991,
+      "tag": "0001_contacts_lists_imports",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794345574390,
+      "tag": "0002_contact_tags",
+      "breakpoints": true
+    }
+  ]
+}
