@@ -19,15 +19,15 @@
       "capability": "records",
       "source": "old Cloud database (no export attached)",
       "outcome": "migrate",
-      "status": "pending",
-      "next_action": "user to export old tables as CSV or skip"
+      "status": "accepted",
+      "next_action": "user chose to skip old data (fresh start)"
     },
     {
       "capability": "auth identities",
       "source": "old Cloud auth users (no export attached)",
       "outcome": "migrate",
-      "status": "pending",
-      "next_action": "user to export old user list or skip"
+      "status": "accepted",
+      "next_action": "user chose to skip old data (fresh start)"
     },
     {
       "capability": "authorization",

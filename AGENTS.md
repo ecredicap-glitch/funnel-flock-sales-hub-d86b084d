@@ -36,7 +36,10 @@ use the editor.
 - A signup trigger (`handle_new_user`) creates the profile, a first workspace and an admin membership; extra workspaces go through the `create_workspace` RPC — workspaces have no direct INSERT policy.
 - Signed-in pages live under `src/routes/_authenticated/_app/` (gate in `_authenticated/route.tsx`, `ssr: false`; shell + workspace context in `_app.tsx`) — the session is in browser storage.
 - Navigation entries are defined once in `src/lib/nav.ts` and feed the rail, bottom bar and command palette — keeps the three in sync.
-- WhatsApp access goes through a `WhatsAppProvider` interface with swappable adapters; gateway credentials are server-only — the provider may change later.
+- WhatsApp access goes through the `WhatsAppProvider` interface (`src/lib/whatsapp/provider.ts`) with adapters in `*.server.ts` loaded only inside server handlers — the provider may change later.
+- Each workspace brings its own gateway: URL in `whatsapp_gateways`, key AES-GCM-encrypted (`GATEWAY_ENCRYPTION_KEY`) in `whatsapp_gateway_secrets`, which only the service role can read — keys never reach the browser.
+- Instance status/QR are written only by server code (server functions or the token-checked webhook at `/api/public/whatsapp/webhook/$instanceId`); clients may update only name, daily limit and warmup — keeps connection state trustworthy.
+- New public tables start with `REVOKE ALL ... FROM anon, authenticated` before explicit GRANTs — this backend's default privileges grant everything otherwise.
 - Contacts consent rules live in the database (`contacts_status_guard` trigger, `import_contacts_batch` RPC, generated `eligible` column) — the UI cannot bypass them; campaigns must target only `eligible = true`.
 - Phone normalization is the single function `normalizeBrPhone` in `src/lib/phone.ts`, mirrored by the `contacts.phone` CHECK regex — keep both in sync.
 - Spreadsheet parsing runs in the browser (`xlsx` loaded via dynamic import) and sends rows to the RPC in batches — keeps the Worker free of large files.

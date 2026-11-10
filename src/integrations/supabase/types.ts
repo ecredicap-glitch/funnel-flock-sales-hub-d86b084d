@@ -298,6 +298,236 @@ export type Database = {
         }
         Relationships: []
       }
+      whatsapp_events: {
+        Row: {
+          actor: string | null
+          created_at: string
+          detail: Json
+          event: string
+          id: number
+          instance_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          actor?: string | null
+          created_at?: string
+          detail?: Json
+          event: string
+          id?: never
+          instance_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          actor?: string | null
+          created_at?: string
+          detail?: Json
+          event?: string
+          id?: never
+          instance_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_events_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "whatsapp_events_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_gateway_secrets: {
+        Row: {
+          api_key_enc: string
+          updated_at: string
+          workspace_id: string
+        }
+        Insert: {
+          api_key_enc: string
+          updated_at?: string
+          workspace_id: string
+        }
+        Update: {
+          api_key_enc?: string
+          updated_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_gateway_secrets_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: true
+            referencedRelation: "whatsapp_gateways"
+            referencedColumns: ["workspace_id"]
+          },
+        ]
+      }
+      whatsapp_gateways: {
+        Row: {
+          api_key_hint: string | null
+          base_url: string
+          created_at: string
+          last_checked_at: string | null
+          last_error: string | null
+          provider: string
+          provider_version: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          api_key_hint?: string | null
+          base_url: string
+          created_at?: string
+          last_checked_at?: string | null
+          last_error?: string | null
+          provider?: string
+          provider_version?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          api_key_hint?: string | null
+          base_url?: string
+          created_at?: string
+          last_checked_at?: string | null
+          last_error?: string | null
+          provider?: string
+          provider_version?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_gateways_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: true
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_instance_secrets: {
+        Row: {
+          instance_id: string
+          instance_token_enc: string | null
+          updated_at: string
+          webhook_token_hash: string
+        }
+        Insert: {
+          instance_id: string
+          instance_token_enc?: string | null
+          updated_at?: string
+          webhook_token_hash: string
+        }
+        Update: {
+          instance_id?: string
+          instance_token_enc?: string | null
+          updated_at?: string
+          webhook_token_hash?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_instance_secrets_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: true
+            referencedRelation: "whatsapp_instances"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      whatsapp_instances: {
+        Row: {
+          connected_at: string | null
+          created_at: string
+          created_by: string | null
+          daily_limit: number
+          disconnected_at: string | null
+          display_name: string
+          id: string
+          last_error: string | null
+          last_event_at: string | null
+          pairing_code: string | null
+          phone_number: string | null
+          profile_name: string | null
+          profile_pic_url: string | null
+          provider_instance: string
+          qr_code: string | null
+          qr_updated_at: string | null
+          status: string
+          updated_at: string
+          warmup_enabled: boolean
+          webhook_url: string | null
+          workspace_id: string
+        }
+        Insert: {
+          connected_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          daily_limit?: number
+          disconnected_at?: string | null
+          display_name: string
+          id?: string
+          last_error?: string | null
+          last_event_at?: string | null
+          pairing_code?: string | null
+          phone_number?: string | null
+          profile_name?: string | null
+          profile_pic_url?: string | null
+          provider_instance: string
+          qr_code?: string | null
+          qr_updated_at?: string | null
+          status?: string
+          updated_at?: string
+          warmup_enabled?: boolean
+          webhook_url?: string | null
+          workspace_id: string
+        }
+        Update: {
+          connected_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          daily_limit?: number
+          disconnected_at?: string | null
+          display_name?: string
+          id?: string
+          last_error?: string | null
+          last_event_at?: string | null
+          pairing_code?: string | null
+          phone_number?: string | null
+          profile_name?: string | null
+          profile_pic_url?: string | null
+          provider_instance?: string
+          qr_code?: string | null
+          qr_updated_at?: string | null
+          status?: string
+          updated_at?: string
+          warmup_enabled?: boolean
+          webhook_url?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "whatsapp_instances_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workspaces: {
         Row: {
           created_at: string

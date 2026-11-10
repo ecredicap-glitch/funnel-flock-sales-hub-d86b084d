@@ -22,6 +22,20 @@
       "when": 1794345574390,
       "tag": "0002_contact_tags",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794346346527,
+      "tag": "0003_whatsapp_gateways_instances",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794346769410,
+      "tag": "0004_tighten_table_privileges",
+      "breakpoints": true
     }
   ]
 }
