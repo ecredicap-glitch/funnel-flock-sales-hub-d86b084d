@@ -1,14 +1,68 @@
 {
   "source": "code-archive (Lovable export: ZapPilot / funnel-flock-sales-hub)",
   "capabilities": [
-    {"capability": "code", "source": "TanStack Start app (auth, cockpit, 11 module pages)", "outcome": "migrate", "status": "pending", "next_action": "copy source into project"},
-    {"capability": "schema", "source": "drizzle migration 0000 (profiles, workspaces, members, RLS, triggers)", "outcome": "migrate", "status": "pending", "next_action": "apply migration on Lovable Cloud"},
-    {"capability": "records", "source": "old Cloud database (no export attached)", "outcome": "migrate", "status": "pending", "next_action": "request CSV export after preview"},
-    {"capability": "auth identities", "source": "old Cloud auth users (no export attached)", "outcome": "migrate", "status": "pending", "next_action": "request users export after preview"},
-    {"capability": "authorization", "source": "workspace roles admin/operator via members + RLS", "outcome": "migrate", "status": "pending", "next_action": "recreate with migration"},
-    {"capability": "google sign-in", "source": "@lovable.dev/cloud-auth-js", "outcome": "migrate", "status": "pending", "next_action": "keep managed Google sign-in"},
-    {"capability": "secrets", "source": ".env holds only old backend URL/publishable keys", "outcome": "replace", "status": "done", "next_action": "none; .env excluded, new Cloud generates its own"},
-    {"capability": "external providers", "source": "none yet (Evolution WhatsApp planned in roadmap step 3)", "outcome": "n/a", "status": "done", "next_action": "none"},
-    {"capability": "verification", "source": "-", "outcome": "verify", "status": "pending", "next_action": "build + sign-in + contacts flow"}
+    {
+      "capability": "code",
+      "source": "TanStack Start app (auth, cockpit, 11 module pages)",
+      "outcome": "migrate",
+      "status": "done",
+      "next_action": "none"
+    },
+    {
+      "capability": "schema",
+      "source": "drizzle migration 0000 (profiles, workspaces, members, RLS, triggers)",
+      "outcome": "migrate",
+      "status": "verified",
+      "next_action": "none"
+    },
+    {
+      "capability": "records",
+      "source": "old Cloud database (no export attached)",
+      "outcome": "migrate",
+      "status": "pending",
+      "next_action": "user to export old tables as CSV or skip"
+    },
+    {
+      "capability": "auth identities",
+      "source": "old Cloud auth users (no export attached)",
+      "outcome": "migrate",
+      "status": "pending",
+      "next_action": "user to export old user list or skip"
+    },
+    {
+      "capability": "authorization",
+      "source": "workspace roles admin/operator via members + RLS",
+      "outcome": "migrate",
+      "status": "verified",
+      "next_action": "dry-run confirmed other users cannot read or write another workspace"
+    },
+    {
+      "capability": "google sign-in",
+      "source": "@lovable.dev/cloud-auth-js",
+      "outcome": "migrate",
+      "status": "done",
+      "next_action": "Google + Lovable + e-mail sign-in enabled"
+    },
+    {
+      "capability": "secrets",
+      "source": ".env holds only old backend URL/publishable keys",
+      "outcome": "replace",
+      "status": "done",
+      "next_action": "none; .env excluded, new Cloud generates its own"
+    },
+    {
+      "capability": "external providers",
+      "source": "none yet (Evolution WhatsApp planned in roadmap step 3)",
+      "outcome": "n/a",
+      "status": "done",
+      "next_action": "none"
+    },
+    {
+      "capability": "verification",
+      "source": "-",
+      "outcome": "verify",
+      "status": "partial",
+      "next_action": "build, tests and database dry-run pass; signed-in browser walk-through pending (no users yet)"
+    }
   ]
 }

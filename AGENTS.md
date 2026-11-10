@@ -37,3 +37,6 @@ use the editor.
 - Signed-in pages live under `src/routes/_authenticated/_app/` (gate in `_authenticated/route.tsx`, `ssr: false`; shell + workspace context in `_app.tsx`) — the session is in browser storage.
 - Navigation entries are defined once in `src/lib/nav.ts` and feed the rail, bottom bar and command palette — keeps the three in sync.
 - WhatsApp access goes through a `WhatsAppProvider` interface with swappable adapters; gateway credentials are server-only — the provider may change later.
+- Contacts consent rules live in the database (`contacts_status_guard` trigger, `import_contacts_batch` RPC, generated `eligible` column) — the UI cannot bypass them; campaigns must target only `eligible = true`.
+- Phone normalization is the single function `normalizeBrPhone` in `src/lib/phone.ts`, mirrored by the `contacts.phone` CHECK regex — keep both in sync.
+- Spreadsheet parsing runs in the browser (`xlsx` loaded via dynamic import) and sends rows to the RPC in batches — keeps the Worker free of large files.
