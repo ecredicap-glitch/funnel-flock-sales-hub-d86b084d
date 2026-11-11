@@ -43,3 +43,4 @@ use the editor.
 - Contacts consent rules live in the database (`contacts_status_guard` trigger, `import_contacts_batch` RPC, generated `eligible` column) — the UI cannot bypass them; campaigns must target only `eligible = true`.
 - Phone normalization is the single function `normalizeBrPhone` in `src/lib/phone.ts`, mirrored by the `contacts.phone` CHECK regex — keep both in sync.
 - Spreadsheet parsing runs in the browser (`xlsx` loaded via dynamic import) and sends rows to the RPC in batches — keeps the Worker free of large files.
+- Message rendering (`{{variavel}}` + spintax `{a|b}`) lives only in the pure module `src/lib/spintax.ts`, shared by the editor preview and the future sender — preview and sent text never diverge.
