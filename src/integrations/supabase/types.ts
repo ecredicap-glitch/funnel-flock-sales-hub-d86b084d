@@ -14,6 +14,176 @@ export type Database = {
   }
   public: {
     Tables: {
+      campaign_messages: {
+        Row: {
+          attempts: number
+          body: string | null
+          campaign_id: string
+          contact_id: string | null
+          created_at: string
+          error: string | null
+          id: string
+          phone: string
+          sent_at: string | null
+          status: Database["public"]["Enums"]["message_status"]
+          workspace_id: string
+        }
+        Insert: {
+          attempts?: number
+          body?: string | null
+          campaign_id: string
+          contact_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          phone: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["message_status"]
+          workspace_id: string
+        }
+        Update: {
+          attempts?: number
+          body?: string | null
+          campaign_id?: string
+          contact_id?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          phone?: string
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["message_status"]
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_messages_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_messages_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_messages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          batch_pause_max: number
+          batch_pause_min: number
+          batch_size: number
+          body: string
+          created_at: string
+          created_by: string | null
+          daily_limit: number
+          dedupe_days: number
+          failed: number
+          id: string
+          instance_id: string | null
+          list_id: string | null
+          max_interval_s: number
+          min_interval_s: number
+          name: string
+          next_send_at: string | null
+          pause_reason: string | null
+          sent: number
+          sent_in_batch: number
+          status: Database["public"]["Enums"]["campaign_status"]
+          total: number
+          window_days: number[]
+          window_end: number
+          window_start: number
+          workspace_id: string
+        }
+        Insert: {
+          batch_pause_max?: number
+          batch_pause_min?: number
+          batch_size?: number
+          body: string
+          created_at?: string
+          created_by?: string | null
+          daily_limit?: number
+          dedupe_days?: number
+          failed?: number
+          id?: string
+          instance_id?: string | null
+          list_id?: string | null
+          max_interval_s?: number
+          min_interval_s?: number
+          name: string
+          next_send_at?: string | null
+          pause_reason?: string | null
+          sent?: number
+          sent_in_batch?: number
+          status?: Database["public"]["Enums"]["campaign_status"]
+          total?: number
+          window_days?: number[]
+          window_end?: number
+          window_start?: number
+          workspace_id: string
+        }
+        Update: {
+          batch_pause_max?: number
+          batch_pause_min?: number
+          batch_size?: number
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          daily_limit?: number
+          dedupe_days?: number
+          failed?: number
+          id?: string
+          instance_id?: string | null
+          list_id?: string | null
+          max_interval_s?: number
+          min_interval_s?: number
+          name?: string
+          next_send_at?: string | null
+          pause_reason?: string | null
+          sent?: number
+          sent_in_batch?: number
+          status?: Database["public"]["Enums"]["campaign_status"]
+          total?: number
+          window_days?: number[]
+          window_end?: number
+          window_start?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "contact_lists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaigns_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contact_imports: {
         Row: {
           created_at: string
@@ -617,6 +787,7 @@ export type Database = {
         }[]
       }
       create_workspace: { Args: { _name: string }; Returns: string }
+      enqueue_campaign: { Args: { _campaign_id: string }; Returns: number }
       has_workspace_role: {
         Args: {
           _role: Database["public"]["Enums"]["member_role"]
@@ -632,8 +803,15 @@ export type Database = {
       shares_workspace_with: { Args: { _other: string }; Returns: boolean }
     }
     Enums: {
+      campaign_status:
+        | "draft"
+        | "running"
+        | "paused"
+        | "completed"
+        | "cancelled"
       contact_status: "active" | "blocked" | "unsubscribed"
       member_role: "admin" | "operator"
+      message_status: "queued" | "sent" | "failed" | "skipped"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -761,8 +939,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      campaign_status: ["draft", "running", "paused", "completed", "cancelled"],
       contact_status: ["active", "blocked", "unsubscribed"],
       member_role: ["admin", "operator"],
+      message_status: ["queued", "sent", "failed", "skipped"],
     },
   },
 } as const

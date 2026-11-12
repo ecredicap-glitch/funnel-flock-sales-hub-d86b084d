@@ -34,6 +34,7 @@ export interface WhatsAppProvider {
   restart(name: string): Promise<void>;
   logout(name: string): Promise<void>;
   deleteInstance(name: string): Promise<void>;
+  sendText(name: string, phone: string, text: string): Promise<void>;
 }
 
 export class ProviderError extends Error {

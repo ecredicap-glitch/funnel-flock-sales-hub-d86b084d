@@ -180,4 +180,12 @@ export class EvolutionProvider implements WhatsAppProvider {
       },
     );
   }
+
+  async sendText(name: string, phone: string, text: string) {
+    await this.call("POST", `/message/sendText/${encodeURIComponent(name)}`, {
+      number: phone,
+      text,
+      delay: 1500 + Math.floor(Math.random() * 2500),
+    });
+  }
 }

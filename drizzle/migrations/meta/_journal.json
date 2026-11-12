@@ -43,6 +43,13 @@
       "when": 1794426078385,
       "tag": "0005_message_templates",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1794493415958,
+      "tag": "0006_campaigns_queue",
+      "breakpoints": true
     }
   ]
 }

@@ -25,6 +25,7 @@ import { Route as AuthenticatedAppPlanosRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAppPrivacidadeRouteImport } from './routes/_authenticated/_app/privacidade'
 import { Route as AuthenticatedAppTemplatesRouteImport } from './routes/_authenticated/_app/templates'
 import { Route as AuthenticatedAppWhatsappRouteImport } from './routes/_authenticated/_app/whatsapp'
+import { Route as ApiPublicJobsSendQueueRouteImport } from './routes/api/public/jobs/send-queue'
 import { Route as ApiPublicWhatsappWebhookInstanceIdRouteImport } from './routes/api/public/whatsapp/webhook/$instanceId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -113,6 +114,11 @@ const AuthenticatedAppWhatsappRoute =
     path: '/whatsapp',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const ApiPublicJobsSendQueueRoute = ApiPublicJobsSendQueueRouteImport.update({
+  id: '/api/public/jobs/send-queue',
+  path: '/api/public/jobs/send-queue',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWhatsappWebhookInstanceIdRoute =
   ApiPublicWhatsappWebhookInstanceIdRouteImport.update({
     id: '/api/public/whatsapp/webhook/$instanceId',
@@ -135,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/privacidade': typeof AuthenticatedAppPrivacidadeRoute
   '/templates': typeof AuthenticatedAppTemplatesRoute
   '/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/api/public/jobs/send-queue': typeof ApiPublicJobsSendQueueRoute
   '/api/public/whatsapp/webhook/$instanceId': typeof ApiPublicWhatsappWebhookInstanceIdRoute
 }
 export interface FileRoutesByTo {
@@ -152,6 +159,7 @@ export interface FileRoutesByTo {
   '/privacidade': typeof AuthenticatedAppPrivacidadeRoute
   '/templates': typeof AuthenticatedAppTemplatesRoute
   '/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/api/public/jobs/send-queue': typeof ApiPublicJobsSendQueueRoute
   '/api/public/whatsapp/webhook/$instanceId': typeof ApiPublicWhatsappWebhookInstanceIdRoute
 }
 export interface FileRoutesById {
@@ -172,6 +180,7 @@ export interface FileRoutesById {
   '/_authenticated/_app/privacidade': typeof AuthenticatedAppPrivacidadeRoute
   '/_authenticated/_app/templates': typeof AuthenticatedAppTemplatesRoute
   '/_authenticated/_app/whatsapp': typeof AuthenticatedAppWhatsappRoute
+  '/api/public/jobs/send-queue': typeof ApiPublicJobsSendQueueRoute
   '/api/public/whatsapp/webhook/$instanceId': typeof ApiPublicWhatsappWebhookInstanceIdRoute
 }
 export interface FileRouteTypes {
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/templates'
     | '/whatsapp'
+    | '/api/public/jobs/send-queue'
     | '/api/public/whatsapp/webhook/$instanceId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/privacidade'
     | '/templates'
     | '/whatsapp'
+    | '/api/public/jobs/send-queue'
     | '/api/public/whatsapp/webhook/$instanceId'
   id:
     | '__root__'
@@ -227,6 +238,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_app/privacidade'
     | '/_authenticated/_app/templates'
     | '/_authenticated/_app/whatsapp'
+    | '/api/public/jobs/send-queue'
     | '/api/public/whatsapp/webhook/$instanceId'
   fileRoutesById: FileRoutesById
 }
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiPublicJobsSendQueueRoute: typeof ApiPublicJobsSendQueueRoute
   ApiPublicWhatsappWebhookInstanceIdRoute: typeof ApiPublicWhatsappWebhookInstanceIdRoute
 }
 
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppWhatsappRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/api/public/jobs/send-queue': {
+      id: '/api/public/jobs/send-queue'
+      path: '/api/public/jobs/send-queue'
+      fullPath: '/api/public/jobs/send-queue'
+      preLoaderRoute: typeof ApiPublicJobsSendQueueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/whatsapp/webhook/$instanceId': {
       id: '/api/public/whatsapp/webhook/$instanceId'
       path: '/api/public/whatsapp/webhook/$instanceId'
@@ -409,6 +429,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiPublicJobsSendQueueRoute: ApiPublicJobsSendQueueRoute,
   ApiPublicWhatsappWebhookInstanceIdRoute:
     ApiPublicWhatsappWebhookInstanceIdRoute,
 }
