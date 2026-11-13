@@ -3,7 +3,6 @@ import { useEffect, useState, type FormEvent } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Loader2, ShieldCheck, Gauge, Clock } from "lucide-react";
-import "@lovable.dev/cloud-auth-js/styles.css";
 
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -98,7 +97,7 @@ function AuthPage() {
     }
   }
 
-  async function oauth(provider: "google" | "lovable") {
+  async function oauth(provider: "google") {
     try {
       sessionStorage.setItem(REDIRECT_KEY, safeRedirect(search.redirect));
     } catch {
@@ -185,14 +184,6 @@ function AuthPage() {
                     <button type="button" className="google-btn" onClick={() => oauth("google")}>
                       <GoogleG />
                       Continuar com Google
-                    </button>
-                    <button
-                      type="button"
-                      className="lovable-auth-button"
-                      style={{ width: "100%" }}
-                      onClick={() => oauth("lovable")}
-                    >
-                      Continue with Lovable
                     </button>
                   </div>
                   <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">

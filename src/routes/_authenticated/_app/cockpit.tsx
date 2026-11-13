@@ -24,6 +24,29 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/app/EmptyState";
 import { HealthRing } from "@/components/app/HealthRing";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { Info } from "@/components/app/Info";
+
+async function loadMetrics(ws: string) {
+  const day = new Date(); day.setHours(0, 0, 0, 0);
+  const d7 = new Date(Date.now() - 7 * 864e5).toISOString();
+  const d30 = new Date(Date.now() - 30 * 864e5).toISOString();
+  const cnt = (q: PromiseLike<{ count: number | null }>) => Promise.resolve(q).then((r) => r.count ?? 0);
+  const base = () => supabase.from("campaign_messages").select("id", { count: "exact", head: true }).eq("workspace_id", ws);
+  const [today, sent7, failed7, unsub, insts, sends] = await Promise.all([
+    cnt(base().eq("status", "sent").gte("sent_at", day.toISOString())),
+    cnt(base().eq("status", "sent").gte("sent_at", d7)),
+    cnt(base().eq("status", "failed").gte("created_at", d7)),
+    cnt(supabase.from("contacts").select("id", { count: "exact", head: true }).eq("workspace_id", ws).eq("status", "unsubscribed").gte("status_changed_at", d30)),
+    supabase.from("whatsapp_instances").select("display_name,status,daily_limit,phone_number").eq("workspace_id", ws).then((r) => r.data ?? []),
+    supabase.from("campaign_messages").select("sent_at").eq("workspace_id", ws).eq("status", "sent").gte("sent_at", new Date(Date.now() - 30 * 864e5).toISOString()).limit(5000).then((r) => r.data ?? []),
+  ]);
+  const connected = insts.filter((i) => i.status === "connected");
+  const limit = connected.reduce((a, i) => a + (i.daily_limit ?? 0), 0);
+  const tries = sent7 + failed7;
+  const health = connected.length ? Math.max(0, Math.round(100 - (tries ? (failed7 / tries) * 100 : 0) * 2)) : null;
+  return { today, limit, delivery: tries ? Math.round((sent7 / tries) * 100) : null, unsub, connected, health, sends: sends.map((x) => x.sent_at as string) };
+}
 
 export const Route = createFileRoute("/_authenticated/_app/cockpit")({
   head: () => ({
@@ -64,7 +87,32 @@ function Cockpit() {
   const [range, setRange] = useState<7 | 30>(7);
   const firstName = profile?.full_name?.split(" ")[0];
   const { data: counts } = useQuery({ ...contactCountsQuery(current?.workspace.id ?? ""), enabled: !!current });
-  const kpis = KPIS.map((k) => (k.label === "Contatos" && counts ? { ...k, value: counts.eligible.toLocaleString("pt-BR") } : k));
+  const ws = current?.workspace.id ?? "";
+  const { data: m } = useQuery({ queryKey: ["cockpit-metrics", ws], enabled: !!ws, refetchInterval: 30000, queryFn: () => loadMetrics(ws) });
+  const TIPS: Record<string, string> = {
+    Contatos: "Contatos ativos com opt-in, que podem receber campanhas.",
+    "Enviadas hoje": "Mensagens de campanha enviadas hoje, comparadas à soma dos limites diários dos números conectados.",
+    "Taxa de entrega": "Envios aceitos pelo WhatsApp ÷ tentativas nos últimos 7 dias. A confirmação de leitura chega na etapa Conversas.",
+    "Taxa de resposta": "Disponível quando a etapa Conversas (respostas no sistema) estiver pronta.",
+    Descadastros: "Contatos que pediram para sair nos últimos 30 dias.",
+    "Limite restante": "Quantas mensagens ainda podem sair hoje somando os números conectados.",
+  };
+  const kpis = KPIS.map((k) => {
+    const v = { ...k, tip: TIPS[k.label] };
+    if (k.label === "Contatos" && counts) v.value = counts.eligible.toLocaleString("pt-BR");
+    if (!m) return v;
+    if (k.label === "Enviadas hoje") { v.value = String(m.today); v.hint = `de ${m.limit} permitidas`; }
+    if (k.label === "Taxa de entrega") v.value = m.delivery == null ? "—" : `${m.delivery}%`;
+    if (k.label === "Descadastros") v.value = String(m.unsub);
+    if (k.label === "Limite restante") { v.value = String(Math.max(0, m.limit - m.today)); v.hint = "mensagens hoje"; }
+    return v;
+  });
+  const bars = Array.from({ length: range }, (_, i) => {
+    const d = new Date(Date.now() - (range - 1 - i) * 864e5);
+    const key = d.toDateString();
+    return { label: format(d, "dd/MM"), n: (m?.sends ?? []).filter((x) => new Date(x).toDateString() === key).length };
+  });
+  const maxBar = Math.max(1, ...bars.map((b) => b.n));
 
   return (
     <div className="space-y-4">
@@ -81,10 +129,10 @@ function Cockpit() {
       {/* Number health strip */}
       <section className="glass flex flex-col gap-5 rounded-3xl p-5 sm:flex-row sm:items-center animate-fade-up">
         <div className="flex items-center gap-4">
-          <HealthRing value={null} size={76} />
+          <HealthRing value={m?.health ?? null} size={76} />
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Saúde do número</p>
-            <p className="mt-0.5 font-bold">Nenhum número conectado</p>
+            <p className="flex items-center gap-1 text-xs uppercase tracking-widest text-muted-foreground">Saúde do número <Info text="Índice 0–100: começa em 100 e cai conforme a taxa de falhas dos últimos 7 dias. Abaixo de 40, reduza o volume." /></p>
+            <p className="mt-0.5 font-bold">{m?.connected.length ? m.connected.map((i) => i.display_name).join(", ") + " · conectado" : "Nenhum número conectado"}</p>
             <p className="text-sm text-muted-foreground">
               O índice 0–100 considera falhas, descadastros, volume vs. limite e idade da conexão.
             </p>
@@ -117,7 +165,7 @@ function Cockpit() {
             style={{ animationDelay: `${60 + i * 40}ms` }}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground">{k.label}</span>
+              <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">{k.label}{k.tip && <Info text={k.tip} />}</span>
               <span className="grid size-8 place-items-center rounded-xl bg-muted text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                 <k.icon className="size-4" />
               </span>
@@ -151,12 +199,19 @@ function Cockpit() {
               ))}
             </div>
           </div>
-          <EmptyState
-            compact
-            icon={BarChart3}
-            title="Sem envios no período"
-            description="O gráfico aparece assim que sua primeira campanha começar a rodar."
-          />
+          {bars.some((b) => b.n) ? (
+            <div className="mt-5 flex h-40 items-end gap-1">
+              {bars.map((b) => (
+                <div key={b.label} className="flex flex-1 flex-col items-center gap-1" title={`${b.label}: ${b.n} enviadas`}>
+                  <span className="text-[10px] text-muted-foreground">{b.n || ""}</span>
+                  <div className="w-full rounded-t-md bg-primary" style={{ height: `${(b.n / maxBar) * 100}%`, minHeight: b.n ? 4 : 1 }} />
+                  {range === 7 && <span className="text-[10px] text-muted-foreground">{b.label}</span>}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState compact icon={BarChart3} title="Sem envios no período" description="O gráfico aparece assim que sua primeira campanha começar a rodar." />
+          )}
         </div>
 
         {/* Best reply time heatmap */}
