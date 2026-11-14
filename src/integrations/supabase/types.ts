@@ -543,6 +543,61 @@ export type Database = {
           },
         ]
       }
+      outbound_messages: {
+        Row: {
+          body: string
+          contact_id: string | null
+          id: string
+          instance_id: string | null
+          phone: string
+          sent_at: string
+          sent_by: string | null
+          workspace_id: string
+        }
+        Insert: {
+          body: string
+          contact_id?: string | null
+          id?: string
+          instance_id?: string | null
+          phone: string
+          sent_at?: string
+          sent_by?: string | null
+          workspace_id: string
+        }
+        Update: {
+          body?: string
+          contact_id?: string | null
+          id?: string
+          instance_id?: string | null
+          phone?: string
+          sent_at?: string
+          sent_by?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outbound_messages_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outbound_messages_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "outbound_messages_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

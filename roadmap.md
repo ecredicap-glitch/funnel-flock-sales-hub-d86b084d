@@ -7,6 +7,6 @@
 - [ ] 4. Templates, editor com spintax e campanhas com fila anti-banimento
   - [x] 4a. Biblioteca de templates + editor com variáveis/spintax e pré-visualização + 8 exemplos
   - [ ] 4b. Campanhas: wizard (público → mensagem → regras → revisão) e fila de envio anti-banimento
-- [ ] 5. Caixa de entrada em tempo real + classificação por IA
+- [ ] 5. Caixa de entrada (5a webhook+taxa ✅, 5b chat ✅; falta IA) em tempo real + classificação por IA
 - [ ] 6. Funil Kanban + cadências
 - [ ] 7. Saúde do número, relatórios, auditoria, LGPD, créditos e convites de equipe
