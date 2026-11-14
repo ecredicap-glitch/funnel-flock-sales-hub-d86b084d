@@ -33,19 +33,20 @@ async function loadMetrics(ws: string) {
   const d30 = new Date(Date.now() - 30 * 864e5).toISOString();
   const cnt = (q: PromiseLike<{ count: number | null }>) => Promise.resolve(q).then((r) => r.count ?? 0);
   const base = () => supabase.from("campaign_messages").select("id", { count: "exact", head: true }).eq("workspace_id", ws);
-  const [today, sent7, failed7, unsub, insts, sends] = await Promise.all([
+  const [today, sent7, failed7, unsub, insts, sends, replied7] = await Promise.all([
     cnt(base().eq("status", "sent").gte("sent_at", day.toISOString())),
     cnt(base().eq("status", "sent").gte("sent_at", d7)),
     cnt(base().eq("status", "failed").gte("created_at", d7)),
     cnt(supabase.from("contacts").select("id", { count: "exact", head: true }).eq("workspace_id", ws).eq("status", "unsubscribed").gte("status_changed_at", d30)),
     supabase.from("whatsapp_instances").select("display_name,status,daily_limit,phone_number").eq("workspace_id", ws).then((r) => r.data ?? []),
     supabase.from("campaign_messages").select("sent_at").eq("workspace_id", ws).eq("status", "sent").gte("sent_at", new Date(Date.now() - 30 * 864e5).toISOString()).limit(5000).then((r) => r.data ?? []),
+    cnt(base().eq("status", "sent").gte("sent_at", d7).not("replied_at", "is", null)),
   ]);
   const connected = insts.filter((i) => i.status === "connected");
   const limit = connected.reduce((a, i) => a + (i.daily_limit ?? 0), 0);
   const tries = sent7 + failed7;
   const health = connected.length ? Math.max(0, Math.round(100 - (tries ? (failed7 / tries) * 100 : 0) * 2)) : null;
-  return { today, limit, delivery: tries ? Math.round((sent7 / tries) * 100) : null, unsub, connected, health, sends: sends.map((x) => x.sent_at as string) };
+  return { today, limit, reply: sent7 ? Math.round((replied7 / sent7) * 100) : null, delivery: tries ? Math.round((sent7 / tries) * 100) : null, unsub, connected, health, sends: sends.map((x) => x.sent_at as string) };
 }
 
 export const Route = createFileRoute("/_authenticated/_app/cockpit")({
@@ -93,7 +94,7 @@ function Cockpit() {
     Contatos: "Contatos ativos com opt-in, que podem receber campanhas.",
     "Enviadas hoje": "Mensagens de campanha enviadas hoje, comparadas à soma dos limites diários dos números conectados.",
     "Taxa de entrega": "Envios aceitos pelo WhatsApp ÷ tentativas nos últimos 7 dias. A confirmação de leitura chega na etapa Conversas.",
-    "Taxa de resposta": "Disponível quando a etapa Conversas (respostas no sistema) estiver pronta.",
+    "Taxa de resposta": "Contatos que responderam ÷ mensagens enviadas nos últimos 7 dias. Quem responde SAIR é descadastrado na hora.",
     Descadastros: "Contatos que pediram para sair nos últimos 30 dias.",
     "Limite restante": "Quantas mensagens ainda podem sair hoje somando os números conectados.",
   };
@@ -103,6 +104,7 @@ function Cockpit() {
     if (!m) return v;
     if (k.label === "Enviadas hoje") { v.value = String(m.today); v.hint = `de ${m.limit} permitidas`; }
     if (k.label === "Taxa de entrega") v.value = m.delivery == null ? "—" : `${m.delivery}%`;
+    if (k.label === "Taxa de resposta") v.value = m.reply == null ? "—" : `${m.reply}%`;
     if (k.label === "Descadastros") v.value = String(m.unsub);
     if (k.label === "Limite restante") { v.value = String(Math.max(0, m.limit - m.today)); v.hint = "mensagens hoje"; }
     return v;

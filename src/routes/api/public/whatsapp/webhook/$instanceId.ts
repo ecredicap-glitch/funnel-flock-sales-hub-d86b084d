@@ -116,8 +116,33 @@ export const Route = createFileRoute("/api/public/whatsapp/webhook/$instanceId")
               last_error: "Instância removida no gateway.",
             })
             .eq("id", inst.id);
+        } else if (event === "messages.upsert") {
+          const { parseInbound, isOptOut } = await import("@/lib/inbound");
+          const since = new Date(Date.now() - 7 * 864e5).toISOString();
+          for (const m of parseInbound(data)) {
+            const optOut = isOptOut(m.body);
+            const { data: contact } = await admin
+              .from("contacts").select("id, status")
+              .eq("workspace_id", inst.workspace_id).eq("phone", m.phone).maybeSingle();
+            const { error } = await admin.from("inbound_messages").insert({
+              workspace_id: inst.workspace_id, instance_id: inst.id, contact_id: contact?.id ?? null,
+              phone: m.phone, provider_message_id: m.id, body: m.body, opt_out: optOut,
+            });
+            if (error) continue; // duplicate delivery
+            const { data: last } = await admin
+              .from("campaign_messages").select("id")
+              .eq("workspace_id", inst.workspace_id).eq("phone", m.phone).eq("status", "sent")
+              .is("replied_at", null).gte("sent_at", since)
+              .order("sent_at", { ascending: false }).limit(1).maybeSingle();
+            if (last) await admin.from("campaign_messages").update({ replied_at: now }).eq("id", last.id);
+            if (optOut && contact && contact.status === "active") {
+              await admin.from("contacts")
+                .update({ status: "unsubscribed", status_reason: "Pediu para sair pelo WhatsApp" })
+                .eq("id", contact.id);
+            }
+          }
+          await admin.from("whatsapp_instances").update({ last_event_at: now }).eq("id", inst.id);
         } else {
-          // Message events are handled by the inbox (roadmap step 5); just track liveness.
           await admin.from("whatsapp_instances").update({ last_event_at: now }).eq("id", inst.id);
         }
         return Response.json({ received: true });

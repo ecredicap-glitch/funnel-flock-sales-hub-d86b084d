@@ -24,6 +24,7 @@ export type Database = {
           error: string | null
           id: string
           phone: string
+          replied_at: string | null
           sent_at: string | null
           status: Database["public"]["Enums"]["message_status"]
           workspace_id: string
@@ -37,6 +38,7 @@ export type Database = {
           error?: string | null
           id?: string
           phone: string
+          replied_at?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["message_status"]
           workspace_id: string
@@ -50,6 +52,7 @@ export type Database = {
           error?: string | null
           id?: string
           phone?: string
+          replied_at?: string | null
           sent_at?: string | null
           status?: Database["public"]["Enums"]["message_status"]
           workspace_id?: string
@@ -395,6 +398,64 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "contacts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inbound_messages: {
+        Row: {
+          body: string | null
+          contact_id: string | null
+          id: string
+          instance_id: string | null
+          opt_out: boolean
+          phone: string
+          provider_message_id: string | null
+          received_at: string
+          workspace_id: string
+        }
+        Insert: {
+          body?: string | null
+          contact_id?: string | null
+          id?: string
+          instance_id?: string | null
+          opt_out?: boolean
+          phone: string
+          provider_message_id?: string | null
+          received_at?: string
+          workspace_id: string
+        }
+        Update: {
+          body?: string | null
+          contact_id?: string | null
+          id?: string
+          instance_id?: string | null
+          opt_out?: boolean
+          phone?: string
+          provider_message_id?: string | null
+          received_at?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbound_messages_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbound_messages_instance_id_fkey"
+            columns: ["instance_id"]
+            isOneToOne: false
+            referencedRelation: "whatsapp_instances"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbound_messages_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
