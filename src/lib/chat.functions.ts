@@ -46,7 +46,7 @@ export const suggestChatReply = createServerFn({ method: "POST" })
         instructions: `Você é assistente de vendas de uma consultoria financeira brasileira (negociação de dívidas, limpa nome, crédito). Analise a conversa de WhatsApp e responda SOMENTE um JSON {"intent": um de ${INTENTS.join(", ")}, "reply": "resposta curta, cordial e consultiva em português do Brasil, sem prometer resultados garantidos"}. Se o cliente pediu para sair, a reply deve apenas confirmar o descadastro.`,
         input: `Nome do cliente: ${data.name || "não informado"}\n\n${convo}`,
       });
-      const raw = (r as { output_text?: string }).output_text ?? "";
+      const raw = r.output.flatMap((o) => (o.type === "message" ? o.content : [])).map((c) => ("text" in c ? c.text : "")).join("");
       const j = JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1)) as { intent?: string; reply?: string };
       const intent = INTENTS.includes(j.intent as (typeof INTENTS)[number]) ? j.intent! : "Neutro";
       return j.reply ? { ok: true, intent, reply: j.reply } : { ok: false, error: "A IA não sugeriu resposta. Tente novamente." };
