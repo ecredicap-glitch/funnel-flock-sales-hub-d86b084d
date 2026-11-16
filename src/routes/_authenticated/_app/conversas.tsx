@@ -3,11 +3,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, MessagesSquare, Search, Send } from "lucide-react";
+import { Loader2, MessagesSquare, Search, Send, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useWorkspace } from "@/lib/workspace";
 import { formatBrPhone } from "@/lib/phone";
-import { sendChatMessage } from "@/lib/chat.functions";
+import { sendChatMessage, suggestChatReply } from "@/lib/chat.functions";
 import { PageHeader } from "@/components/app/PageHeader";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,6 +55,9 @@ function ConversasPage() {
   const [q, setQ] = useState("");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  const suggest = useServerFn(suggestChatReply);
+  const [ai, setAi] = useState(false);
+  const [intent, setIntent] = useState<{ phone: string; label: string } | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   const msgs = useQuery({ queryKey: ["chat", ws], queryFn: () => loadMessages(ws), enabled: !!ws, refetchInterval: 10000 });
@@ -78,6 +81,16 @@ function ConversasPage() {
   const history = (msgs.data ?? []).filter((m) => m.phone === active);
   const contact = active ? byPhone.get(active) : undefined;
   useEffect(() => endRef.current?.scrollIntoView({ block: "end" }), [active, history.length]);
+
+  async function askAi() {
+    if (!active || history.length === 0) return;
+    setAi(true);
+    const r = await suggest({ data: { workspaceId: ws, name: contact?.name ?? undefined, history: history.slice(-20).map((m) => ({ dir: m.dir, body: m.body.slice(0, 4000) })) } });
+    setAi(false);
+    if (!r.ok) { toast.error(r.error); return; }
+    setIntent({ phone: active, label: r.intent });
+    setText(r.reply);
+  }
 
   async function submit() {
     if (!active || !text.trim()) return;
@@ -121,7 +134,7 @@ function ConversasPage() {
           ) : (
             <>
               <header className="border-b px-5 py-3">
-                <p className="font-medium">{contact?.name || formatBrPhone(active)}</p>
+                <p className="flex items-center gap-2 font-medium">{contact?.name || formatBrPhone(active)}{intent?.phone === active && <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">{intent.label}</span>}</p>
                 <p className="text-xs text-muted-foreground">{formatBrPhone(active)}{contact && contact.status !== "active" ? " · não quer receber mensagens" : ""}</p>
               </header>
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-muted/30 p-5">
@@ -138,6 +151,9 @@ function ConversasPage() {
               <footer className="flex gap-2 border-t p-3">
                 <Textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} placeholder="Escreva sua resposta…" className="resize-none"
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void submit(); } }} />
+                <Button variant="outline" onClick={askAi} disabled={ai || history.length === 0} className="self-end" title="Sugerir resposta com IA">
+                  {ai ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
+                </Button>
                 <Button onClick={submit} disabled={busy || !text.trim() || (!!contact && contact.status !== "active")} className="self-end">
                   {busy ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
                 </Button>
