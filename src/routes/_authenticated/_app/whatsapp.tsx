@@ -319,11 +319,11 @@ function WhatsappPage() {
               <li>Envie só para contatos com opt-in — descadastros derrubam a saúde do número.</li>
               <li>Mantenha o celular com internet; se cair, reconecte pelo QR Code.</li>
             </ul>
-            {false && gateway && gateway.base_url && (
+            {gateway && false && (
               <p className="mt-4 border-t pt-3 text-xs text-muted-foreground">
                 Gateway:{" "}
-                <span className="font-mono">{gateway.base_url.replace(/^https?:\/\//, "")}</span>
-                {gateway.provider_version ? ` · v${gateway.provider_version}` : ""}
+                <span className="font-mono">{gateway!.base_url.replace(/^https?:\/\//, "")}</span>
+                {gateway!.provider_version ? ` · v${gateway!.provider_version}` : ""}
               </p>
             )}
           </aside>

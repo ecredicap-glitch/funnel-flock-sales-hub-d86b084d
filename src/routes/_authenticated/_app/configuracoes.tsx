@@ -87,7 +87,7 @@ function SettingsPage() {
             <Users className="mr-1.5 size-4" />
             Equipe
           </TabsTrigger>
-          {current?.id === PLATFORM_WS && (
+          {current?.workspace.id === PLATFORM_WS && (
           <TabsTrigger value="gateway" className="rounded-xl">
             <KeyRound className="mr-1.5 size-4" />
             Gateway
@@ -103,7 +103,7 @@ function SettingsPage() {
         <TabsContent value="equipe">
           <TeamTab />
         </TabsContent>
-        {current?.id === PLATFORM_WS && (
+        {current?.workspace.id === PLATFORM_WS && (
         <TabsContent value="gateway">
           <GatewayTab />
         </TabsContent>
