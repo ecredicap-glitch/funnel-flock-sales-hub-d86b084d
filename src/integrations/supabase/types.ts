@@ -405,6 +405,60 @@ export type Database = {
           },
         ]
       }
+      deals: {
+        Row: {
+          contact_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          owner_id: string | null
+          product: string | null
+          stage: Database["public"]["Enums"]["deal_stage"]
+          updated_at: string
+          value: number | null
+          workspace_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string | null
+          product?: string | null
+          stage?: Database["public"]["Enums"]["deal_stage"]
+          updated_at?: string
+          value?: number | null
+          workspace_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          owner_id?: string | null
+          product?: string | null
+          stage?: Database["public"]["Enums"]["deal_stage"]
+          updated_at?: string
+          value?: number | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inbound_messages: {
         Row: {
           body: string | null
@@ -926,6 +980,14 @@ export type Database = {
         | "completed"
         | "cancelled"
       contact_status: "active" | "blocked" | "unsubscribed"
+      deal_stage:
+        | "novo"
+        | "contatado"
+        | "respondeu"
+        | "interessado"
+        | "proposta"
+        | "fechado"
+        | "perdido"
       member_role: "admin" | "operator"
       message_status: "queued" | "sent" | "failed" | "skipped"
     }
@@ -1057,6 +1119,15 @@ export const Constants = {
     Enums: {
       campaign_status: ["draft", "running", "paused", "completed", "cancelled"],
       contact_status: ["active", "blocked", "unsubscribed"],
+      deal_stage: [
+        "novo",
+        "contatado",
+        "respondeu",
+        "interessado",
+        "proposta",
+        "fechado",
+        "perdido",
+      ],
       member_role: ["admin", "operator"],
       message_status: ["queued", "sent", "failed", "skipped"],
     },

@@ -80,7 +80,7 @@ function ConversasPage() {
   const active = sel ?? threads[0]?.phone ?? null;
   const history = (msgs.data ?? []).filter((m) => m.phone === active);
   const contact = active ? byPhone.get(active) : undefined;
-  useEffect(() => endRef.current?.scrollIntoView({ block: "end" }), [active, history.length]);
+  useEffect(() => { endRef.current?.scrollIntoView({ block: "end" }); }, [active, history.length]);
 
   async function askAi() {
     if (!active || history.length === 0) return;

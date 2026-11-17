@@ -45,3 +45,4 @@ use the editor.
 - Spreadsheet parsing runs in the browser (`xlsx` loaded via dynamic import) and sends rows to the RPC in batches — keeps the Worker free of large files.
 - Message rendering (`{{variavel}}` + spintax `{a|b}`) lives only in the pure module `src/lib/spintax.ts`, shared by the editor preview and the future sender — preview and sent text never diverge.
 - Campaign sending runs only in the cron route `/api/public/jobs/send-queue` (one message per running campaign per minute, rules in pure `src/lib/send-engine.ts`); clients create campaigns and enqueue via the `enqueue_campaign` RPC (eligible contacts only) and may change only name/status — counters and queue rows are server-written.
+- Funnel cards live in `deals` (one per contact per workspace, stages in enum `deal_stage` mirrored by `src/lib/funnel.ts`); auto-moves on campaign send/inbound reply are DB triggers — server senders stay unaware of the funnel.

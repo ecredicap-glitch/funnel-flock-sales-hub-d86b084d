@@ -64,6 +64,13 @@
       "when": 1794660392459,
       "tag": "0008_outbound_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794918963286,
+      "tag": "0009_funil_deals",
+      "breakpoints": true
     }
   ]
 }
