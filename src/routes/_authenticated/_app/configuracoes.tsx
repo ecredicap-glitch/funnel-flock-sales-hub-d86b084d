@@ -24,6 +24,9 @@ import {
 } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
+/** Only the platform owner sees the server settings; customers use it transparently. */
+const PLATFORM_WS = "0120a8da-c574-448a-93fa-3413feaaf316";
+
 type SettingsTab = "workspace" | "perfil" | "equipe" | "gateway";
 const SETTINGS_TABS: SettingsTab[] = ["workspace", "perfil", "equipe", "gateway"];
 
@@ -57,13 +60,14 @@ const teamQuery = (workspaceId: string) =>
 
 function SettingsPage() {
   const { aba } = Route.useSearch();
+  const { current } = useWorkspace();
   const navigate = Route.useNavigate();
   return (
     <>
       <PageHeader
         eyebrow="Conta"
         title="Configurações"
-        description="Workspace, perfil, equipe e conexão com o gateway."
+        description="Workspace, perfil e equipe."
       />
       <Tabs
         value={aba ?? "workspace"}
@@ -83,10 +87,12 @@ function SettingsPage() {
             <Users className="mr-1.5 size-4" />
             Equipe
           </TabsTrigger>
+          {current?.id === PLATFORM_WS && (
           <TabsTrigger value="gateway" className="rounded-xl">
             <KeyRound className="mr-1.5 size-4" />
             Gateway
           </TabsTrigger>
+          )}
         </TabsList>
         <TabsContent value="workspace">
           <WorkspaceTab />
@@ -97,9 +103,11 @@ function SettingsPage() {
         <TabsContent value="equipe">
           <TeamTab />
         </TabsContent>
+        {current?.id === PLATFORM_WS && (
         <TabsContent value="gateway">
           <GatewayTab />
         </TabsContent>
+        )}
       </Tabs>
     </>
   );

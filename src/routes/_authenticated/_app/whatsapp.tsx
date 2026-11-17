@@ -141,7 +141,7 @@ function WhatsappPage() {
             : "Conecte e monitore seus números, cada um com limite diário e saúde próprios."
         }
         actions={
-          gateway && isAdmin ? (
+          isAdmin ? (
             <Button variant="hero" onClick={() => setCreating(true)}>
               <Plus /> Novo número
             </Button>
@@ -149,7 +149,7 @@ function WhatsappPage() {
         }
       />
 
-      {!gwLoading && !gateway ? (
+      {false && !gwLoading && !gateway ? (
         <section className="glass rounded-3xl animate-fade-up">
           <EmptyState
             icon={KeyRound}
@@ -319,7 +319,7 @@ function WhatsappPage() {
               <li>Envie só para contatos com opt-in — descadastros derrubam a saúde do número.</li>
               <li>Mantenha o celular com internet; se cair, reconecte pelo QR Code.</li>
             </ul>
-            {gateway && (
+            {false && gateway && gateway.base_url && (
               <p className="mt-4 border-t pt-3 text-xs text-muted-foreground">
                 Gateway:{" "}
                 <span className="font-mono">{gateway.base_url.replace(/^https?:\/\//, "")}</span>

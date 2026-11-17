@@ -16,8 +16,21 @@ export function buildProvider(provider: string, baseUrl: string, apiKey: string)
   throw new ProviderError("Provedor não suportado.", 400);
 }
 
-/** Provider for a workspace, or a friendly error when the gateway isn't configured. */
+/** Workspace whose gateway serves every customer that has not set its own (the platform server). */
+const PLATFORM_WORKSPACE_ID =
+  process.env["PLATFORM_GATEWAY_WORKSPACE_ID"] ?? "0120a8da-c574-448a-93fa-3413feaaf316";
+
+/** Provider for a workspace; falls back to the platform gateway so customers never configure servers. */
 export async function providerFor(admin: Admin, workspaceId: string): Promise<WhatsAppProvider> {
+  try {
+    return await ownProvider(admin, workspaceId);
+  } catch (e) {
+    if (workspaceId === PLATFORM_WORKSPACE_ID) throw e;
+    return ownProvider(admin, PLATFORM_WORKSPACE_ID);
+  }
+}
+
+async function ownProvider(admin: Admin, workspaceId: string): Promise<WhatsAppProvider> {
   const [{ data: gw }, { data: secret }] = await Promise.all([
     admin
       .from("whatsapp_gateways")
@@ -31,7 +44,7 @@ export async function providerFor(admin: Admin, workspaceId: string): Promise<Wh
       .maybeSingle(),
   ]);
   if (!gw || !secret)
-    throw new ProviderError("Configure o gateway em Configurações → Gateway.", 412);
+    throw new ProviderError("Conexão de WhatsApp indisponível no momento. Fale com o suporte.", 412);
   return buildProvider(gw.provider, gw.base_url, await decryptSecret(secret.api_key_enc));
 }
 
